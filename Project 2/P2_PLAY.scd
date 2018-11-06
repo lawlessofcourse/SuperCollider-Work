@@ -1,6 +1,6 @@
 
 c = TempoClock.default
-c.tempo = 133/60
+c.tempo = 140/60
 
 Pdef(\yeahBass).play;
 Pdef(\higher).play;

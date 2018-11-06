@@ -151,7 +151,7 @@ Synth(\beaut);
 	arg  freq = 87.307, freqDur = 15, vRate = 3, vDepth= 0.09, amp = 0.707, filterFreq = 0;
 	var sig, mod, sig2, outSig, sig1, sigMix, env;
 
-	env = Env.new([0.01,1,1,0.01], [0.1, 1.8, 0.1], 'lin');
+	env = Env.new([0.01,1,1,0.01], [0.1, 1.5, 0.1], 'lin');
 	env = EnvGen.kr(env);
 	//env = XLine.kr(0.01, 1, 2);
 	//freq = XLine.kr(freqA, freqB, freqDur, doneAction: 0);
@@ -185,7 +185,7 @@ Pdef(\wubalub,
 	Pbind(
 		\instrument, \wubs3,
 		\freq, Pseq([87.307, 82.407, 73.416], inf),
-		\dur, Pseq([4.5, 4.5, 4.5], inf),
+		\dur, Pseq([4, 4, 4], inf),
 		\db, -12,
 		\vDepth,Pdef(\depth, 0.8),
 		\vRate, Pdef(\rate, 6),
@@ -193,8 +193,8 @@ Pdef(\wubalub,
 )
 )
 Pdef(\wubalub).play;
-Pdef(\depth, 0.8);
-Pdef(\rate, 10);
+Pdef(\depth, 0.6);
+Pdef(\rate, 2);
 
 (SynthDef(\buildUp, {
 	var env, sig, sig2, outSig;
