@@ -148,7 +148,7 @@ env =	XLine.kr(1, 0.01, 30, doneAction: 1);
 )
 Synth(\beaut);
 (SynthDef(\wubs3, {
-	arg  freq = 87.307, freqDur = 15, vRate = 3, vDepth= 0.09, amp = 0.707, filterFreq = 0;
+	arg  freq = 87.307, freqDur = 15, vRate = 3, vDepth= 0.9, amp = 0.707, filterFreq = 0;
 	var sig, mod, sig2, outSig, sig1, sigMix, env;
 
 	env = Env.new([0.01,1,1,0.01], [0.1, 1.5, 0.1], 'lin');
@@ -156,6 +156,12 @@ Synth(\beaut);
 	//env = XLine.kr(0.01, 1, 2);
 	//freq = XLine.kr(freqA, freqB, freqDur, doneAction: 0);
 	//filterFreq = XLine.kr(8000, 440 ,freqDur);
+	freq = Env.new([220, 220, 261.63, 261.63, 293.67, 293.67, 220, 196,  196 ]/2,
+		               [    4,   1,      5,      1,      5,      1,   4,    4 ], 'lin');
+	freq = EnvGen.kr(freq, gate: 1, doneAction: 2);
+	vRate = Env.new([10, 10, 3, 8, 20, 10, 3, 3,  2 ]/2,
+		            [  4,   1,      5,      1,      5,      1,   4,    4 ], 'lin');
+	vRate = EnvGen.kr(vRate, gate: 1, doneAction: 2);
 	filterFreq = ((freq*2)*2);
 	mod = Vibrato.kr(DC.ar(1), rate: vRate, depth:vDepth);
 
@@ -163,22 +169,27 @@ Synth(\beaut);
 
 	sig2 = Saw.ar(freq, 0.1, mul:amp);
 
-	sigMix = Mix.new([sig1, sig2]);
-	sigMix = sigMix*mod;
 
-	sig = RLPF.ar(
-		in: sigMix,
+	//sigMix = sigMix*mod;
+
+	sig1 = RHPF.ar(
+		in: sig1,
 		freq: filterFreq,
 		rq: 0.05,
-		mul: env,
+		mul: amp,
+	);sig2 = RLPF.ar(
+		in: sig2,
+		freq: filterFreq,
+		rq: 0.05,
+		mul: amp,
 	);
-
-	sig = FreeVerb.ar(sig, mix: 0.33, room:0.5, mul: env);
+	sig = Mix.new([sig1, sig2]);
+	sig = FreeVerb.ar(sig, mix: 0.33, room:0.5, mul: amp)*mod;
 	sig = Pan2.ar(sig, 0);
 	sig = Limiter.ar(sig, 0.7);
 
 	Out.ar(0, sig);
-}).add;
+}).add.play;
 )
 (
 Pdef(\wubalub,
