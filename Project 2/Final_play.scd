@@ -28,11 +28,11 @@ MIDIdef.cc(\bassRate, {
 	// nn is the knob/fader location ex fader 1 is 41 and knob 1 is 21
 	//I want to specifically say use nn 21 for rate control.
 	"".postln;
-	~rateBus.set(val/127);
+	~rateBus.set(val/127 * 10);
 
 
 },
-(0..127)
+(0..127) // <- the midi number you want to target
 ))
 (
 MIDIdef.noteOn(\noteOnTest, {
@@ -145,7 +145,7 @@ Pdef(\beautPatConstant,
 		\instrument, \beautConstant,
 		\freq, Pdef(\freqA, 174.61),// set to controller?
 		\dur, Pseq([4, 2, 4, 2],inf),
-		\db, -6, // set to fader or knob
+		\db, -8, // set to fader or knob
 		\vRate, Pdef(\vRate, 10), // set to controller maybe try setting it same knob or fader that wubalub's rate is set to so they change rates together.
 		//\filterFreq, Pdef(\filterFreq, 698.46) // set to controller //filter freq is dependent upon freq so only the freq paramenter needs to be changed to alter the sound
 	)
@@ -162,6 +162,8 @@ Pdef(\yeahBass,
 		\modFreq, Pseq([174.61, 220, 146.83], inf),
 		\rate, Pdef(\rate, 1), //knob for rate
 		\depth, Pdef(\depth, 0.6),
+		\lfoRate, Pdef(\lfoRate, 4),
+		\lfoAmpLow, Pdef(\lfoAmpLow, 1),
 		\test, Pfunc({|ev| ~der = ev})
 	)
 )
@@ -201,14 +203,14 @@ Pdef(\highHatPat).pause;Pdef(\clapPat).play;Pdef(\deepKickPat).play;Pdef(\kickDu
 
 Pdef(\clapPat).pause;Pdef(\deepKickPat).pause;Pdef(\wubalub).pause;
 
-Pdef(\wubalub).play;Pdef(\bassHit).play;Pdef(\bassHitDur, Pseq([5, 5, 5, 5, 5], inf));// LINE THIS UP WITH WUBALUB ENV IN BASSNOISE
+Pdef(\wubalub).play;Pdef(\bassHit).play;Pdef(\bassHitDur, Pseq([5, 8, 8, 2], inf));// LINE THIS UP WITH WUBALUB ENV IN BASSNOISE
 Pdef(\highHatPat).play;Pdef(\highHatDur, Pseq([0.25], inf));
 
 Pdef(\vDepth, 0.5);Pdef(\rate, 6);// set to controller
 
 
 // CAN I CREATE ROUTINES OR TASKS TO AUTOMATE THE BREAK
-Pdef(\highHatPat).pause;Pdef(\clapPat).pause;Pdef(\deepKickPat).pause;Pdef(\wubalub).pause;
+Pdef(\highHatPat).pause;Pdef(\clapPat).pause;Pdef(\deepKickPat).pause;Pdef(\wubalub).stop;
 Pdef(\highHatPat).play;Pdef(\clapPat).play;Pdef(\deepKickPat).play;
 Pdef(\beautPatBuild).play;
 //LIKEWISE CAN I CREATE TASK/ROUTINE TO PLAY THE CONSTANT NEAR THE END OF THE BUILD
@@ -222,7 +224,9 @@ Pdef(\freqA, 174.61)//set to controller
 
 
 Pdef(\yeahBass).play;Pdef(\beautPatConstant).stop;
-Pdef(\yeahBass).stop;
+Pdef(\lfoRate, 0.5);
+Pdef(\lfoAmpLow, 0);
+Pdef(\yeahBass).pause;
 
 
 Pdef(\bassHit).play;
