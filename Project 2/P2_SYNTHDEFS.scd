@@ -199,12 +199,14 @@ SynthDef(\beautBuild, {
 
 SynthDef(\beautConstant, {
 	arg  freq = 110, freqDur = 15, vRate = 6, vDepth= 0.2, amp = 0.707, filterFreq = 0;
-	var sig, mod, sig2, outSig, sig1, sigMix, env;
+	var sig, mod, sig2, outSig, sig1, sigMix, env, rate;
 
 	filterFreq = ((freq*2)*2);
 
 	env = EnvGen.kr(Env.linen(0.2, 3, 1, 1, 'lin'), doneAction: 2);
 
+	rate = In.kr(~rateBus);
+	rate.poll;
 	mod = Vibrato.kr(DC.ar(1), rate: vRate, depth:vDepth);
 
 	sig1= SinOsc.ar(freq, 0.1, mul: amp);
@@ -335,10 +337,10 @@ SynthDef(\clap, {
 // I CAN'T GET highHat TO PLAY THROUGH A PDEF, WHY? I HAD IT WORKING FOR OVER 10 MINUTES THEN IT STOPPED PLAYING THROUGH THE PDEF
 
 SynthDef(\highHat, {
-    arg out = 0, pan = 0, amp = 0.707, gate = 1, freqA = 4000, freqB = 4200;
+    arg out = 0, pan = 0, amp = 0.707, freqA = 4000, freqB = 4200;
     var env, sig;
 
-    env = EnvGen.ar(Env.perc(0.001, 0.2, curve: -6), gate, doneAction: 2);
+    env = EnvGen.ar(Env.perc(0.001, 0.2, curve: -6), doneAction: 2);
 	sig = Mix(BPF.ar(PinkNoise.ar(env), [freqA, freqB], [0.2, 0.6], [amp, amp*0.4]));
 
     Out.ar(out, sig!2);

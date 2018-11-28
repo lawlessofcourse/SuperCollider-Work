@@ -10,41 +10,57 @@
 // HOW DO I CREATE CUSTOM LFO'S AND IMPLIMENT THEM
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// // initalize midi
-// MIDIClient.init;
-// MIDIClient.restart;
-//
-// // connect midi devices to SC
-// MIDIIn.connectAll
-// (
-// MIDIdef.noteOn(\noteOnTest, {
-// 	arg val, nn, chan, src;
-// 	[val, nn].postln;
-// 	~notes[nn] = Pdef.new(
-// 		\wubalub,
-// 		[
-// 			\freq, nn.midicps,
-// 			\amp, val.linexp(1,127,0.01,0.3),
-//
-// 		]
-// 	);
-// });
-//
-// MIDIdef.noteOff(\noteOffTest, {
-// 	arg val, nn;
-// 	~notes[nn].set(\gate,0);
-// 	~notes[nn] = nil;
-// });
-//
-// MIDIdef.bend(\bendTest, {
-// 	arg val, chan, src;
-// 	[val, chan, src].postln;
-// 	~bend = val;
-// 	~notes.do{arg synth; synth.set(\bend, val.linlin(0,16383,-2,2))};
-// }, chan:0);
-// )
-// ~bend = 8192;
-// ~notes = Array.newClear(128);
+// initalize midi
+MIDIClient.init;
+MIDIClient.restart;
+
+// connect midi devices to SC
+MIDIIn.connectAll
+
+
+~rateBus = Bus.control();
+
+
+MIDIdef.cc(\bassRate, {
+	arg val, nn, chan, src;
+	val.postln;
+	nn.postln;
+	"".postln;
+	~rateBus.set(val/127);
+
+
+},
+(0..127)
+)
+(
+MIDIdef.noteOn(\noteOnTest, {
+	arg val, nn, chan, src;
+	[val, nn].postln;
+	~notes[nn] = Pdef.new(
+		\wubalub,
+		[
+			\freq, nn.midicps,
+			\amp, val.linexp(1,127,0.01,0.3),
+
+		]
+	);
+});
+
+MIDIdef.noteOff(\noteOffTest, {
+	arg val, nn;
+	~notes[nn].set(\gate,0);
+	~notes[nn] = nil;
+});
+
+MIDIdef.bend(\bendTest, {
+	arg val, chan, src;
+	[val, chan, src].postln;
+	~bend = val;
+	~notes.do{arg synth; synth.set(\bend, val.linlin(0,16383,-2,2))};
+}, chan:0);
+)
+~bend = 8192;
+~notes = Array.newClear(128);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -70,13 +86,15 @@ Pdef(\deepKickPat,
 	Pbind(
 		\instrument, \deepKick,
 		//\dur, Pseq([1, 1,  0.5, 1.5], inf),
-		\dur, Pseq([1, 0.5, 1, 0.5, 1], inf),
+		\dur, Pdef(\kickDur, Pseq([1, 0.5, 1, 0.5, 1], inf)),
 		//\freqA, Pseq([440], inf),
 		\curve, Pseq([-1], inf),
 		\db, -6, // set to controller?
 	)
 )
 )
+Pdef(\kickDur, Prand([0.5, 0.25, 0.125], inf))
+
 
 (
 Pdef(\clapPat,
@@ -132,7 +150,8 @@ Pdef(\beautPatBuild,
 )
 // CAN I CREATE ROUTINES OR TASKS TO AUTOMATE THE BREAK
 Pdef(\highHatPat).pause;Pdef(\clapPat).pause;Pdef(\deepKickPat).pause;Pdef(\wubalub).pause;
-Pdef(\highHatPat).play;Pdef(\clapPat).play;Pdef(\deepKickPat).play;Pdef(\beautPatBuild).play;
+Pdef(\highHatPat).play;Pdef(\clapPat).play;Pdef(\deepKickPat).play;
+Pdef(\beautPatBuild).play;
 //LIKEWISE CAN I CREATE TASK/ROUTINE TO PLAY THE CONSTANT NEAR THE END OF THE BUILD
 Pdef(\beautPatConstant).play;
 Pdef(\beautPatBuild).stop;
