@@ -47,8 +47,9 @@ SynthDef(\bassNoise, {
 	arg freq = 55, amp = 0.707, gate = 1,
 	atk = 2, rel = 1, sustain = 5,
 	modFreq = 440, rate = 0.75, depth = 0.05,
-	iphase = 0.5, width = 0.5;
-	var sig1, sig, env, rateEnv;
+	iphase = 0.5, width = 0.5,
+	lfoRate = 2, lfoAmpLow = 1;
+	var sig1, sig, env, rateEnv, lfo;
 
 //	env = Env.adsr(0.01*sustain, 0.3*sustain, amp*0.707, 0.5*sustain);
 
@@ -68,6 +69,10 @@ SynthDef(\bassNoise, {
 	);
 	// sig = sig*Vibrato.ar(DC.ar(modFreq), rate, depth);
 	//sig =Saw.ar(Vibrato.ar(DC.ar(freq), rate, depth), mul: env);
+
+	lfo = SinOsc.ar(lfoRate).linlin(-1,1,0,1);
+	sig = sig * lfo;
+
 
 	sig = Pan2.ar(sig, 0);
 
@@ -261,7 +266,7 @@ SynthDef(\wubs3, {
 		           [    4,   1,      5,      1,      5,      1,   4,    4 ], 'lin');// 25 total time
 	freq = EnvGen.kr(freq, gate: 1, doneAction: 2);
 
-	mod = Vibrato.kr(DC.ar(1), rate: vRate, depth:vDepth);
+	mod = Vibrato.kr(DC.ar(1), rate: In.kr(~rateBus), depth:vDepth);
 
 	sig1= SinOsc.ar(freq * bend.midiratio, 0.1, mul: amp);
 	sig2 = Saw.ar(freq*bend.midiratio, 0.1, mul:amp);
