@@ -81,16 +81,31 @@ SynthDef(\bassNoise, {
 }).add;
  //CAN I GIVE THIS AN LFO SHAPE TO MAKE INTO DUBSTEP SOUND?
 SynthDef(\bassNoise2, {
-	arg freq = 55, amp = 0.707, gate = 1, atk = 2, rel = 1, sustain = 5, modFreq = 440, rate = 0.75, depth = 0.05;
-	var sig, env, rateEnv;
+	arg freq = 55, amp = 0.707, gate = 1,
+	atk = 0.02, sustain = 0.5, rel = 1.5,
+	modFreq = 440, rate = 0, depth = 0.05,
+	iphase = 0.5, width = 0.5,
+	freqA = 110, freqB = 43.654, freqC = 36.708,
+	freqDur1 = 0.01, freqDur2=0.75, freqC1 = 1, freqC2 = (-1);
+	var sig1, sig, env, freqEnv;
 
-//	env = Env.adsr(0.01*sustain, 0.3*sustain, amp*0.707, 0.5*sustain);
+	freqEnv = EnvGen.kr(Env.new([freqA, freqB, freqC], [freqDur1, freqDur2], [freqC1, freqC2]));
 
-	env = EnvGen.kr(Env.linen(atk, sustain, rel, amp, -2), gate, doneAction: 2); // 10 SECONDS IN PLAY TIME
+	env = EnvGen.kr(Env.linen(atk, sustain, rel, amp, -2), gate, doneAction: 2); // 3.02 total time
 
 	/*rateEnv = EnvGen.kr(Env.new([0.25, 0.5,  0.5, 1, 1, 2, 2, 4, 4, 6, 6],
 		                        [     1,   2,    1, 2, 1, 4, 1, 4, 1, 4 ], curve: 'lin'));*/
-	sig = RHPF.ar(VarSaw.ar(Vibrato.kr(DC.ar(freq), rate, depth), mul: env), modFreq, rq: 0.5);
+	sig=RLPF.ar(
+		VarSaw.ar(
+			Vibrato.kr(freqEnv, rate, depth)+Crackle.ar(0.5, amp*2),
+			iphase,
+			width,
+			amp,
+		),
+		modFreq,
+		rq: 0.5,
+		mul: env
+	);
 	// sig = sig*Vibrato.ar(DC.ar(modFreq), rate, depth);
 	//sig =Saw.ar(Vibrato.ar(DC.ar(freq), rate, depth), mul: env);
 
@@ -98,11 +113,12 @@ SynthDef(\bassNoise2, {
 
 	sig = Limiter.ar(sig, amp);
 
-	sig = sig*Crackle.kr(0.1, amp*0.25);
+/*	sig1 = sig+Crackle.ar(1.5, amp);
+	sig = sig+sig1;*/
 	//sig = sig*env;
 	//sig = Pluck.ar(sig, 1, 0.2, 0.2, 3, 0.5, amp);
 	Out.ar(0, sig);
-}).add;
+}).add.play;
 
 SynthDef(\synthy, {
 	arg freq = 440, amp = 0.707, gate = 1, sustain = 1, modFreq = 880, rate = 0.5, depth = 0.05;
@@ -242,7 +258,7 @@ SynthDef(\wubs3, {
 	env = EnvGen.kr(env);
 
 	freq = Env.new([220, 220, 261.63, 261.63, 293.67, 293.67, 220, 196,  196 ]/2,
-		           [    4,   1,      5,      1,      5,      1,   4,    4 ], 'lin');
+		           [    4,   1,      5,      1,      5,      1,   4,    4 ], 'lin');// 25 total time
 	freq = EnvGen.kr(freq, gate: 1, doneAction: 2);
 
 	mod = Vibrato.kr(DC.ar(1), rate: vRate, depth:vDepth);
@@ -288,13 +304,13 @@ SynthDef(\buildUp, {
 // MY OWN KICK BASED OFF OF SOUND ENGRAVER'S KICK
 SynthDef(\deepKick, {
 	arg freqA = 174.61, freqB = 55, freqC = 43.654, freqDur1=0.02, freqDur2=0.75, freqC1 = 1, freqC2 = (-1),
-	atk=0.01, rel=0.8, curve=(-1), amp=0.707, pan=0, out=0, gate = 1;
+	atk=0.01, rel=0.8, curve=(-1), amp=0.707, pan=0, out=0;
 
 	var sig, env, freqEnv;
 
-	freqEnv = EnvGen.kr(Env.new([freqA, freqB, freqC], [freqDur1, freqDur2], [freqC1, freqC2]), gate);
+	freqEnv = EnvGen.kr(Env.new([freqA, freqB, freqC], [freqDur1, freqDur2], [freqC1, freqC2]));
 
-	env = EnvGen.kr(Env.perc(atk, rel, 1, -2), gate: 1, doneAction: 2);
+	env = EnvGen.kr(Env.perc(atk, rel, 1, -2), doneAction: 2);
 
 	sig = SinOsc.ar(freqEnv, pi/2, env);
 

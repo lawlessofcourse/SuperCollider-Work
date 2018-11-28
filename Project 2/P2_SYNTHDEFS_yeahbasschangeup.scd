@@ -45,8 +45,8 @@ SynthDef(\pluck, {
 ( //CAN I GIVE THIS AN LFO SHAPE TO MAKE INTO DUBSTEP SOUND?
 SynthDef(\bassNoise, {
 	arg freq = 55, amp = 0.707, gate = 1,
-	atk = 0.02, rel = 0.5, sustain = 0.5,
-	modFreq = 440, rate = 0.75, depth = 0.05,
+	atk = 0.02, rel = 1.5, sustain = 0.5,
+	modFreq = 440, rate = 0, depth = 0.05,
 	iphase = 0.5, width = 0.5;
 	var sig1, sig, env, rateEnv;
 
@@ -79,7 +79,7 @@ SynthDef(\bassNoise, {
 	//sig = sig*env;
 	//sig = Pluck.ar(sig, 1, 0.2, 0.2, 3, 0.5, amp);
 	Out.ar(0, sig);
-}).add;
+}).add.play;
  //CAN I GIVE THIS AN LFO SHAPE TO MAKE INTO DUBSTEP SOUND?
 SynthDef(\bassNoise2, {
 	arg freq = 55, amp = 0.707, gate = 1, atk = 2, rel = 1, sustain = 5, modFreq = 440, rate = 0.75, depth = 0.05;

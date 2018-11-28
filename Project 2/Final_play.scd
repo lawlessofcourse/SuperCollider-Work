@@ -20,18 +20,20 @@ MIDIIn.connectAll
 
 ~rateBus = Bus.control();
 
-
+(
 MIDIdef.cc(\bassRate, {
 	arg val, nn, chan, src;
 	val.postln;
 	nn.postln;
+	// nn is the knob/fader location ex fader 1 is 41 and knob 1 is 21
+	//I want to specifically say use nn 21 for rate control.
 	"".postln;
 	~rateBus.set(val/127);
 
 
 },
 (0..127)
-)
+))
 (
 MIDIdef.noteOn(\noteOnTest, {
 	arg val, nn, chan, src;
@@ -77,10 +79,10 @@ Pdef(\build,
 		\db, -2,
 ))
 )
-Pdef(\build).play;
 // IMPACT PDEF TO PLAY AT END OF BUILD
 
 //how to combine percussion pdefs so i can play all at once and create different pattern variations
+
 (//HOW TO LINE UP CLAPS WITH KICKS?
 Pdef(\deepKickPat,
 	Pbind(
@@ -93,9 +95,7 @@ Pdef(\deepKickPat,
 	)
 )
 )
-Pdef(\kickDur, Prand([0.5, 0.25, 0.125], inf))
-
-
+//Pdef(\kickDur, Prand([0.5, 0.25, 0.125], inf))
 (
 Pdef(\clapPat,
 	Pbind(
@@ -110,35 +110,25 @@ Pdef(\clapPat,
 Pdef(\highHatPat,
 	Pbind(
 		\instrument, \highHat,
-		\dur, Pseq([0.25, 0.25, 0.25, 0.5, 0.25, 0.5], inf),
+		\dur, Pdef(\highHatDur, Pseq([0.25, 0.25, 0.25, 0.5, 0.25, 0.5], inf)),
+
+
 		\db, -2,
 ))
 )
-//WHY AM I GETTING FAILURE IN SERVER/ WHAT DO I NEED TO SET THE DONEACTION TO FOR THE NODES
-Pdef(\highHatPat).play;
-Pdef(\clapPat).play;Pdef(\deepKickPat).play;
-
-
+//RESOVLED - WHY AM I GETTING FAILURE IN SERVER/ WHAT DO I NEED TO SET THE DONEACTION TO FOR THE NODES - RESOLVED - FOR ENV.PERC DO NOT USE GATE
 (
 Pdef(\wubalub,
 	Pbind(
 		\instrument, \wubs3,
 		\freq, Pdef(\freq, 43.654),
-		\dur, Pseq([25],inf),
-		\db, -4,//set to fader or knob
+		\dur, Pseq([23],inf),
+		\db, -6,//set to fader or knob
 		\vDepth,Pdef(\vDepth, 0.08),
 		\vRate, Pdef(\rate, 1),//set to knob or fader w/ values of 0...10
 	)
 )
 )
-Pdef(\wubalub).play;
-
-Pdef(\highHatPat).pause;
-Pdef(\clapPat).pause;Pdef(\deepKickPat).pause;
-Pdef(\highHatPat).play;Pdef(\clapPat).play;Pdef(\deepKickPat).play;Pdef(\wubalub).play;
-
-Pdef(\vDepth, 0.5);Pdef(\rate, 6);// set to controller
-
 (
 Pdef(\beautPatBuild,
 	Pbind(
@@ -148,14 +138,6 @@ Pdef(\beautPatBuild,
 	)
 )
 )
-// CAN I CREATE ROUTINES OR TASKS TO AUTOMATE THE BREAK
-Pdef(\highHatPat).pause;Pdef(\clapPat).pause;Pdef(\deepKickPat).pause;Pdef(\wubalub).pause;
-Pdef(\highHatPat).play;Pdef(\clapPat).play;Pdef(\deepKickPat).play;
-Pdef(\beautPatBuild).play;
-//LIKEWISE CAN I CREATE TASK/ROUTINE TO PLAY THE CONSTANT NEAR THE END OF THE BUILD
-Pdef(\beautPatConstant).play;
-Pdef(\beautPatBuild).stop;
-
 (
 
 Pdef(\beautPatConstant,
@@ -169,10 +151,6 @@ Pdef(\beautPatConstant,
 	)
 )
 )
-
-
-Pdef(\freqA, 174.61)//set to controller
-
 (
 Pdef(\yeahBass,
 	Pbind(
@@ -188,5 +166,63 @@ Pdef(\yeahBass,
 	)
 )
 )
+(
+Pdef(\bassHit,
+	Pbind(
+		\instrument, \bassNoise2,
+		\freq, Pdef(\note, Pseq([55, 55, 55], inf)),
+		\dur, Pdef(\bassHitDur, Pseq([3],inf)),
+		\db, -4, // knob for volume
+		\sustain, 1.5,
+		\release, 1.5,
+		\modFreq, Pseq([440, 392, 493.88], inf),
+		//\rate, Pdef(\rate, 1), //knob for rate
+		//\depth, Pdef(\depth, 0.6),
+		//\test, Pfunc({|ev| ~der = ev})
+	)
+)
+)
+Pdef(\build).play;
+
+Pdef(\highHatPat).play;Pdef(\highHatDur, Pseq([0.25, 0.25, 0.25, 0.5, 0.25, 0.5], inf));
+
+Pdef(\clapPat).play;Pdef(\deepKickPat).play;Pdef(\kickDur, Pseq([1, 0.5, 1, 0.5, 1], inf));
+
+Pdef(\highHatPat).pause;
+
+(Pdef(\clapPat).pause;
+//Pdef(\deepKickPat).pause;
+Pdef(\highHatPat).play;
+Pdef(\highHatDur,Pseq([0.25, 0.25,0.25,0.25,0.25, 0.25,0.25,0.25,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,], inf));)
+
+
+
+Pdef(\highHatPat).pause;Pdef(\clapPat).play;Pdef(\deepKickPat).play;Pdef(\kickDur, Pseq([0.5, 0.5, 0.25, 0.75], inf));Pdef(\wubalub).play;
+
+Pdef(\clapPat).pause;Pdef(\deepKickPat).pause;Pdef(\wubalub).pause;
+
+Pdef(\wubalub).play;Pdef(\bassHit).play;Pdef(\bassHitDur, Pseq([5, 5, 5, 5, 5], inf));// LINE THIS UP WITH WUBALUB ENV IN BASSNOISE
+Pdef(\highHatPat).play;Pdef(\highHatDur, Pseq([0.25], inf));
+
+Pdef(\vDepth, 0.5);Pdef(\rate, 6);// set to controller
+
+
+// CAN I CREATE ROUTINES OR TASKS TO AUTOMATE THE BREAK
+Pdef(\highHatPat).pause;Pdef(\clapPat).pause;Pdef(\deepKickPat).pause;Pdef(\wubalub).pause;
+Pdef(\highHatPat).play;Pdef(\clapPat).play;Pdef(\deepKickPat).play;
+Pdef(\beautPatBuild).play;
+//LIKEWISE CAN I CREATE TASK/ROUTINE TO PLAY THE CONSTANT NEAR THE END OF THE BUILD
+Pdef(\beautPatConstant).play;
+Pdef(\beautPatBuild).stop;
+
+
+
+
+Pdef(\freqA, 174.61)//set to controller
+
+
 Pdef(\yeahBass).play;Pdef(\beautPatConstant).stop;
 Pdef(\yeahBass).stop;
+
+
+Pdef(\bassHit).play;
