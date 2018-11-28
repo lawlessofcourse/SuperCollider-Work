@@ -1,4 +1,19 @@
 (
+Pdef(\wubalub,
+	Pbind(
+		\instrument, \wubs3,
+		\dur, Pseq([30], inf),
+		\db, -6,//set to controller
+		\vDepth,Pdef(\depth, 0.8),//set to controller
+		\vRate, Pdef(\rate, 6),//set to controller
+	)
+)
+)
+Pdef(\wubalub).play;
+Pdef(\depth, 0.6);
+Pdef(\rate, 0.5);
+
+(
 Pdef(\beautPat,
 	Pbind(
 		\instrument, \beaut,
@@ -39,11 +54,13 @@ Pdef(\spurts,
 Pdef(\yeahBass,
 	Pbind(
 		\instrument, \bassNoise,
-		\freq, Pdef(\note, Pseq([55, 48.999, 61.735]*2, inf)),
+		\freq, Pdef(\note, Pseq([55, 48.999, 61.735], inf)),
 		\dur, Pseq([8, 8, 8],inf),
-		\db, -6,
+		\db, -12, // knob for volume
 		\sustain, 10,
 		\modFreq, Pseq([174.61, 220, 146.83], inf),
+		\rate, Pdef(\rate, 1), //knob for rate
+		\depth, Pdef(\depth, 0.6),
 		\test, Pfunc({|ev| ~der = ev})
 	)
 )
