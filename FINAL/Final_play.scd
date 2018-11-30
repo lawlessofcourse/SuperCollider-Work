@@ -69,7 +69,7 @@ Pdef(\wubalub,
 	Pbind(
 		\instrument, \wubs3,
 		//\freq, Pdef(\freq, 43.654),
-		\dur, Pseq([40],inf),
+		\dur, Pseq([20],inf),
 		\db, 0,//set to fader or knob
 		//\vDepth,Pdef(\vDepth, 0.08),
 		//\vRate, Pdef(\rate, 1),//set to knob or fader w/ values of 0...10
@@ -147,21 +147,23 @@ Pdef(\wubalub).play;Pdef(\bassHit).play;Pdef(\bassHitDur, Pseq([6, 10, 10, 10, 4
 
 
 // CAN I CREATE ROUTINES OR TASKS TO AUTOMATE THE BREAK
-Pdef(\deepKickPat).pause;Pdef(\wubalub).stop;
-Pdef(\beautPatBuild).play;Pdef(\bassHit).pause;
-Pdef(\beautPatBuild).stop;
+Pdef(\deepKickPat).pause;
+Pdef(\beautPatBuild).play;
+Pdef(\bassHit).pause;
+
+Pdef(\beautPatConstant).play;Pdef(\bassHit).play;Pdef(\bassHitDur, Pseq([4], inf));Pdef(\beautPatBuild).stop;
+
+Pdef(\deepKickPat).play;Pdef(\kickDur, Pseq([2], inf));
+
+Pdef(\beautPatConstant).pause;Pdef(\bassHitDur, Pseq([2], inf));
+Pdef(\deepKickPat).pause;
+
+b = Synth(\bassNoise);
+b.pause;
+b.free;
+
+Pdef(\lfoAmpLow, 0.5);
 
 
-Pdef(\beautPatConstant).play;Pdef(\bassHit).play;Pdef(\bassHitDur, Pseq([6], inf));Pdef(\beautPatBuild).stop;
 
 
-Synth(\bassNoise);
-
-Pdef(\yeahBass2).play;
-Synth(\bassNoise);
-
-Pdef(\lfoAmpLow, 0);
-Pdef(\yeahBass).pause;
-
-
-Pdef(\bassHit).play;

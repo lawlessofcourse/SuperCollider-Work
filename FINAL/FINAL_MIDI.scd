@@ -1,19 +1,17 @@
 // MIDI CONNECTION
 // initalize midi
 MIDIClient.init;
-MIDIClient.restart;
 
 // connect midi devices to SC
 MIDIIn.connectAll
 ~bank = Array.newClear(127);
-~notes = Array.newClear(127);
 ~bassVol = Bus.control();
 ~beautVol = Bus.control();
 ~wubVol = Bus.control();
 ~hatVol = Bus.control();
 ~lfoBus = Bus.control();
 ~rateBus = Bus.control();
-~vRate = Array.newClear(127);
+
 
 (
 MIDIdef.cc(\bassRate, {
@@ -24,7 +22,7 @@ MIDIdef.cc(\bassRate, {
 	//I want to specifically say use nn 21 for rate control.
 	"".postln;
 
-	val = (val/127*15).floor;
+	val = (val/127*20).ceil;
 	~rateBus.set(val);
 	["Vibrato Rate", val].postln;
 },
@@ -135,33 +133,8 @@ MIDIdef.noteOff(\noteOff, {
 },
 (0..127)// set to accept all note numbers
 );
+)
 
-
-
-MIDIdef.cc(\changeModRate, {
-	// arg val, num, chan, src;
-
-
-	// num.postln;
-	// chan.postln;
-	// src.postln;
-	// "".postln;
-
-	arg ...args;
-
-
-	var val = args[0];
-	val.postln;
-	~vRate.do({
-		arg synth, i;
-		if(synth.notNil, {
-			synth.set(\vRate, ((val/127)*10)); //STILL GOES UP TO 127 ??
-		})
-	})
-
-},
-(23)
-))
 
 
 

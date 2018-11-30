@@ -134,7 +134,7 @@ SynthDef(\bassNoise, {
 
 	sig = Pan2.ar(sig, 0);
 	sig = sig*In.kr(~bassVol);
-	sig = Limiter.ar(sig, amp);
+	sig = Limiter.ar(sig, amp/2);
 /*	sig1 = sig+Crackle.ar(1.5, amp);
 	sig = sig+sig1;*/
 	//sig = sig*env;
