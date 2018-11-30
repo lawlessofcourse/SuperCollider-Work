@@ -103,43 +103,72 @@ SynthDef(\wubs2, {
 	Out.ar(0, sig);
 }).add.play;
 )
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 ( //CAN I GIVE THIS AN LFO SHAPE TO MAKE INTO DUBSTEP SOUND? - DONE
 SynthDef(\bassNoise, {
 	arg freq = 55, amp = 0.707, gate = 1,
-	atk = 2, rel = 1, sustain = 5,
+	atk = 0.01, rel = 0.01, sustain = 1.5,
 	modFreq = 440, rate = 0.75, depth = 0.05,
 	iphase = 0.5, width = 0.5,
-	lfoRate = 2, lfoAmpLow = 1;
+	lfoRate = 1, lfoAmpLow = 0; // where is lfoAmpLow being used?
 	var sig1, sig, env, rateEnv, lfo;
 
-//	env = Env.adsr(0.01*sustain, 0.3*sustain, amp*0.707, 0.5*sustain);
+	//env = EnvGen.kr(Env.linen(atk, sustain, rel, amp, -2), gate, doneAction: 2); // 1.5 SECONDS IN PLAY TIME
 
-	env = EnvGen.kr(Env.linen(atk, sustain, rel, amp, -2), gate, doneAction: 2); // 10 SECONDS IN PLAY TIME
+	lfo = LFTri.ar(In.kr(~lfoBus)).linlin(-1,1,0,1);
 
-	/*rateEnv = EnvGen.kr(Env.new([0.25, 0.5,  0.5, 1, 1, 2, 2, 4, 4, 6, 6],
-		                        [     1,   2,    1, 2, 1, 4, 1, 4, 1, 4 ], curve: 'lin'));*/
 	sig=RLPF.ar(
 		VarSaw.ar(
-			Vibrato.kr(DC.ar(freq), rate, depth)+Crackle.ar(0.5, amp*2),
+			[LFSaw.kr(In.kr(~lfoBus), 0, 100, 55), Vibrato.kr(DC.ar(freq), In.kr(~rateBus), depth)+Crackle.ar(0.5, amp*2)],
 			iphase,
 			width,
-			env,
+			lfo,
 		),
 		modFreq,
-		rq: 0.5
+		rq: 0.5,
+		mul: lfo,//sig = sig * lfo; ... same thing
 	);
-	// sig = sig*Vibrato.ar(DC.ar(modFreq), rate, depth);
-	//sig =Saw.ar(Vibrato.ar(DC.ar(freq), rate, depth), mul: env);
-
-	lfo = SinOsc.ar(lfoRate).linlin(-1,1,0,1);
-	sig = sig * lfo;
 
 
 	sig = Pan2.ar(sig, 0);
-
+	sig = sig*In.kr(~bassVol);
 	sig = Limiter.ar(sig, amp);
+/*	sig1 = sig+Crackle.ar(1.5, amp);
+	sig = sig+sig1;*/
+	//sig = sig*env;
+	//sig = Pluck.ar(sig, 1, 0.2, 0.2, 3, 0.5, amp);
+	Out.ar(0, sig);
+}).add;
+ //CAN I GIVE THIS AN LFO SHAPE TO MAKE INTO DUBSTEP SOUND? - DONE
+SynthDef(\bassNoise2, {
+	arg freq = 55, amp = 0.707, gate = 1,
+	atk = 0.01, rel = 0.01, sustain = 1.5,
+	modFreq = 440, rate = 0.75, depth = 0.05,
+	iphase = 0.5, width = 0.5,
+	lfoRate = 1, lfoAmpLow = 0; // where is lfoAmpLow being used?
+	var sig1, sig, env, rateEnv, lfo;
 
+	//env = EnvGen.kr(Env.linen(atk, sustain, rel, amp, -2), gate, doneAction: 2); // 1.5 SECONDS IN PLAY TIME
+
+	lfo = LFTri.ar(In.kr(~lfoBus)).linlin(-1,1,0,1);
+
+	sig=RLPF.ar(
+		VarSaw.ar(
+			LFSaw.kr(In.kr(~lfoBus), 0, 55, 220),//Vibrato.kr(DC.ar(freq), rate, depth)+Crackle.ar(0.5, amp*2),
+			iphase,
+			width,
+			lfo,
+		),
+		modFreq,
+		rq: 0.5,
+		mul: lfo,//sig = sig * lfo; ... same thing
+	);
+
+
+	sig = Pan2.ar(sig, 0);
+	sig = Limiter.ar(sig, amp);
 /*	sig1 = sig+Crackle.ar(1.5, amp);
 	sig = sig+sig1;*/
 	//sig = sig*env;
@@ -147,7 +176,7 @@ SynthDef(\bassNoise, {
 	Out.ar(0, sig);
 }).add;
  //CAN I GIVE THIS AN LFO SHAPE TO MAKE INTO DUBSTEP SOUND?
-SynthDef(\bassNoise2, {
+SynthDef(\bassHit, {
 	arg freq = 55, amp = 0.707, gate = 1,
 	atk = 0.02, sustain = 0.5, rel = 1.5,
 	modFreq = 440, rate = 0, depth = 0.05,
@@ -228,7 +257,7 @@ SynthDef(\beautConstant, {
 	env = EnvGen.kr(Env.linen(0.2, 3, 1, 1, 'lin'), doneAction: 2);
 
 	rate = In.kr(~rateBus);
-	rate.poll;
+
 	mod = Vibrato.kr(DC.ar(1), rate: vRate, depth:vDepth);
 
 	sig1= SinOsc.ar(freq, 0.1, mul: amp);
@@ -247,12 +276,14 @@ SynthDef(\beautConstant, {
 
 	sig = FreeVerb.ar(sig, mix: 0.33, room:0.5, mul: amp);
 	sig = Pan2.ar(sig, 0);
-	sig = Limiter.ar(sig, 0.7);
+	sig = sig * In.kr(~beautVol);
+	sig = Limiter.ar(sig, amp);
 
 	Out.ar(0, sig);
 }).add;
 //Set rate and depth control on Vibrato to either OSC device or Midi Device. Change doneAction so it plays forever.. fade out when done(set db in pbind to controller to fade out?).
-SynthDef(\wubs3, {
+
+SynthDef(\wubs3, { //freq is at F2 filterFreq is F4
 	arg  freq = 87.307, freqDur = 15, vRate = 3, vDepth= 0.9, amp = 0.707, filterFreq = 0,
 	mix = 0.33, room = 0.5, bend = 0;
 
@@ -260,11 +291,11 @@ SynthDef(\wubs3, {
 
 	filterFreq = ((freq*2)*2);
 
-	env = Env.linen(0.2, 20, 3,  1, 'lin');
-	env = EnvGen.kr(env);
+	env = Env.linen(0.2, 17, 3,  1, 'lin');
+	env = EnvGen.kr(env, doneAction: 2);
 
 	freq = Env.new([220, 220, 261.63, 261.63, 293.67, 293.67, 220, 196,  196 ]/2,
-		           [    4,   1,      5,      1,      5,      1,   4,    4 ], 'lin');// 25 total time
+		           [    3,   1,      4,      1,      4,      1,   3,    3 ], 'lin');// 20 total time
 	freq = EnvGen.kr(freq, gate: 1, doneAction: 2);
 
 	mod = Vibrato.kr(DC.ar(1), rate: In.kr(~rateBus), depth:vDepth);
@@ -273,22 +304,23 @@ SynthDef(\wubs3, {
 	sig2 = Saw.ar(freq, 0.1, mul:amp);
 	sig1 = RHPF.ar(
 		in: sig1,
-		freq: filterFreq,
+		freq: filterFreq, // filterFreq is (freq*2)*2
 		rq: 0.05,
-		mul: amp,
+		mul: mod,
 	);sig2 = RLPF.ar(
 		in: sig2,
-		freq: 440,
+		freq: 293.67, //D4
 		rq: 0.05,
-		mul: amp,
+		mul: mod,
 	);
 	sig = Mix.new([sig1, sig2]);
-	sig = FreeVerb.ar(sig, mix: mix, room: room, mul: env)*mod;
+	sig = FreeVerb.ar(sig, mix: mix, room: room, mul: env);
 	sig = Pan2.ar(sig, 0);
-	sig = Limiter.ar(sig, 0.7);
-
+	sig = Limiter.ar(sig, amp/2);
+	sig = sig *In.kr(~wubVol);
 	Out.ar(0, sig);
 }).add;
+
 SynthDef(\buildUp, {
 	var env, sig, sig2, outSig;
 	env = EnvGen.kr(Env.new([0,1,1,0], [2, 10, 3]), doneAction: 2);
@@ -309,8 +341,8 @@ SynthDef(\buildUp, {
 }).add;
 // MY OWN KICK BASED OFF OF SOUND ENGRAVER'S KICK
 SynthDef(\deepKick, {
-	arg freqA = 174.61, freqB = 55, freqC = 43.654, freqDur1=0.02, freqDur2=0.75, freqC1 = 1, freqC2 = (-1),
-	atk=0.01, rel=0.8, curve=(-1), amp=0.707, pan=0, out=0;
+	arg freqA = 698.46, freqB = 43.654, freqC = 10, freqDur1=0.02, freqDur2=0.75, freqC1 = 1, freqC2 = (-1),
+	atk=0.01, rel=0.8, curve=(-2), amp=0.707, pan=0, out=0;
 
 	var sig, env, freqEnv;
 
@@ -365,8 +397,9 @@ SynthDef(\highHat, {
     env = EnvGen.ar(Env.perc(0.001, 0.1, curve: -8), doneAction: 2);
 	sig = Mix(BPF.ar(WhiteNoise.ar(env), [freqA, freqB], [0.2, 0.6], [amp, amp*0.4]));
 
+	sig = sig * In.kr(~hatVol);
     Out.ar(out, sig!2);
-}).add.play;
+}).add;
 )
 
 Env.perc(0.001, 0.3, curve: -4).plot

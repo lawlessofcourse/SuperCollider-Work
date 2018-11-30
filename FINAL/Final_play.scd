@@ -14,8 +14,8 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-c = TempoClock.default
-c.tempo = 80/60
+c = TempoClock.new(1, 4, 1, 256);
+c.tempo = 120/60
 thisProcess.platform.recordingsDir
 s.record
 s.stopRecording
@@ -39,7 +39,7 @@ Pdef(\deepKickPat,
 		//\freqA, Pseq([440], inf),
 		\curve, Pseq([-1], inf),
 		\db, Pseq([-6], inf), // set to controller?
-	).pause
+	)
 )
 );
 //Pdef(\kickDur, Prand([0.5, 0.25, 0.125], inf))
@@ -57,7 +57,7 @@ Pdef(\clapPat,
 Pdef(\highHatPat,
 	Pbind(
 		\instrument, \highHat,
-		\dur, Pdef(\highHatDur, Pseq([0.25, 0.25, 0.25, 0.5, 0.25, 0.5], inf)),
+		\dur, Pdef(\highHatDur, Pseq([0.25], inf)),
 
 
 		\db, -16,
@@ -68,9 +68,9 @@ Pdef(\highHatPat,
 Pdef(\wubalub,
 	Pbind(
 		\instrument, \wubs3,
-		\freq, Pdef(\freq, 43.654),
-		\dur, Pseq([23],inf),
-		\db, -6,//set to fader or knob
+		//\freq, Pdef(\freq, 43.654),
+		\dur, Pseq([40],inf),
+		\db, 0,//set to fader or knob
 		//\vDepth,Pdef(\vDepth, 0.08),
 		//\vRate, Pdef(\rate, 1),//set to knob or fader w/ values of 0...10
 	))
@@ -98,11 +98,11 @@ Pdef(\beautPatConstant,
 Pdef(\yeahBass,
 	Pbind(
 		\instrument, \bassNoise,
-		\freq, Pdef(\note, Pseq([55, 48.999, 61.735], inf)),
+		//\freq, Pdef(\note, Pseq([55, 48.999, 61.735], inf)),
 		\dur, Pseq([8, 8, 8],inf),
 		\db, -8, // knob for volume
-		\sustain, 10,
-		\modFreq, Pseq([174.61, 220, 146.83], inf),
+		//\sustain, 10,
+		//\modFreq, Pseq([174.61, 220, 146.83], inf),
 		\rate, Pdef(\rate, 1), //knob for rate
 		\depth, Pdef(\depth, 0.6),
 		\lfoRate, Pdef(\lfoRate, 4),
@@ -111,11 +111,19 @@ Pdef(\yeahBass,
 	))
 );
 (
+Pdef(\yeahBass2,
+	Pbind(
+		\instrument, \bassNoise,
+		\dur, Pseq([1.5], 1),
+		\freq, Pseq([55], 5),
+	))
+);
+(
 Pdef(\bassHit,
 	Pbind(
-		\instrument, \bassNoise2,
+		\instrument, \bassHit,
 		\freq, Pdef(\note, Pseq([55, 55, 55], inf)),
-		\dur, Pdef(\bassHitDur, Pseq([3],inf)),
+		\dur, Pdef(\bassHitDur, Pseq([4],inf)),
 		\db, -4, // knob for volume
 		\sustain, 1.5,
 		\release, 1.5,
@@ -127,51 +135,31 @@ Pdef(\bassHit,
 );
 )
 
-Pdef(\build).play;
-Pdef(\build).stop;
-Pdef(\highHatPat).play;Pdef(\highHatDur, Pseq([0.25, 0.25, 0.25, 0.5, 0.25, 0.5], inf));
+Pdef(\build).play;Pdef(\wubalub).play; // FADE IN WUB TO BUILD
+Pdef(\build).stop; //EXECUTE AFTER
 
-Pdef(\clapPat).play;Pdef(\deepKickPat).play;
-Pdef(\kickDur, Pseq([1, 0.5, 1, 0.5, 1], inf));
+Pdef(\wubalub).stop; //HIT THIS THEN ONCE IT STOPS EXECUTE NEXT BLOCK OF CODE
 
-Pdef(\highHatPat).pause;
-
-//Pdef(\clapPat).pause;
-//Pdef(\deepKickPat).pause;
-Pdef(\highHatPat).play;
-Pdef(\highHatDur,Pseq([0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,],inf));
+//PLAY ADD IN HIHAT NEAR END AND FADE OUT WUB
+Pdef(\wubalub).play;Pdef(\bassHit).play;Pdef(\bassHitDur, Pseq([6, 10, 10, 10, 4], inf));Pdef(\deepKickPat).play;Pdef(\kickDur, Pseq([2, 1, 2, 1, 2], inf));Pdef(\highHatPat).play;// LINE THIS UP WITH PSEQ IN WUBALUB
 
 
-Pdef(\wubalub).stop;
-Pdef(\highHatPat).play;
-(Pdef(\kickDur, Pseq([0.5, 0.5, 0.25, 0.75], inf));
-Pdef(\clapDur, Pseq([0.5, 0.5, 0.3, 0.7], inf));
-Pdef(\clapDb, Pseq([-64, -64, -64, -4], inf));)
-
-Pdef(\clapPat).pause;Pdef(\deepKickPat).pause;Pdef(\wubalub).pause;
-
-Pdef(\wubalub).play;Pdef(\bassHit).play;Pdef(\bassHitDur, Pseq([5, 8, 8, 2], inf));// LINE THIS UP WITH WUBALUB ENV IN BASSNOISE
-Pdef(\highHatPat).play;Pdef(\highHatDur, Pseq([0.1], inf));
-
-Pdef(\vDepth, 0.5);Pdef(\rate, 6);// set to controller
 
 
 // CAN I CREATE ROUTINES OR TASKS TO AUTOMATE THE BREAK
-Pdef(\highHatPat).pause;Pdef(\clapPat).pause;Pdef(\deepKickPat).pause;Pdef(\wubalub).stop;
-Pdef(\highHatPat).play;Pdef(\clapPat).play;Pdef(\deepKickPat).play;Pdef(\beautPatBuild).play;
-//LIKEWISE CAN I CREATE TASK/ROUTINE TO PLAY THE CONSTANT NEAR THE END OF THE BUILD
-Pdef(\beautPatConstant).play;Pdef(\kickDur, Pseq([2, 2, 2, 2, 2 , 2], inf));
+Pdef(\deepKickPat).pause;Pdef(\wubalub).stop;
+Pdef(\beautPatBuild).play;Pdef(\bassHit).pause;
 Pdef(\beautPatBuild).stop;
 
 
+Pdef(\beautPatConstant).play;Pdef(\bassHit).play;Pdef(\bassHitDur, Pseq([6], inf));Pdef(\beautPatBuild).stop;
 
 
-Pdef(\freqA, 174.61)//set to controller
+Synth(\bassNoise);
 
+Pdef(\yeahBass2).play;
+Synth(\bassNoise);
 
-Pdef(\yeahBass).play;
-Pdef(\beautPatConstant).stop;
-Pdef(\lfoRate, 0.5);
 Pdef(\lfoAmpLow, 0);
 Pdef(\yeahBass).pause;
 
