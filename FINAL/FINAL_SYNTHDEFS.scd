@@ -16,19 +16,19 @@ SynthDef(\chords, {
 
 	Out.ar(0, sig);
 
-}).add.play;
+}).add;
 )
 (//tuned to c4
 SynthDef(\pluck, {
 	arg freq = 261.63, amp = 0.707,
 	atk = 0.001, sustain = 1, rel = 0.25, rate = 1, depth = 0.6,
-	maxDel = 0.1, delay=0.01, coef = 0.1, out = 0, gate = 1, dec = 20, modFreq =440;
+	maxDel = 0.1, delay=0.1, coef = 0.1, out = 0, gate = 1, dec = 20, modFreq =880;
 	var sig, env;
 
 	env = EnvGen.kr(Env.linen(atk, sustain, rel, amp, -2), doneAction: 2);
 	sig = Pluck.ar(
-		in: RHPF.ar(SinOsc.ar(Vibrato.ar(DC.ar(freq), rate, depth), mul: amp), modFreq),
-		trig: LFPulse.kr(0),
+		in: RLPF.ar(SinOsc.ar(freq, 0, LFTri.kr(0.1)), modFreq),
+		trig: SinOsc.kr(1).linlin(-1,1,0,1),
 		maxdelaytime: maxDel,
 		delaytime: delay,
 		decaytime: sustain,
@@ -64,6 +64,7 @@ SynthDef(\synthy, {
 
 }).add;
 )
+
 (
 SynthDef(\wubs2, {
 	arg  freq = 110, inSigFreq = 440, freqA =698.46, freqB = 43.625, freqDur = 10, vRate = 2, vDepth= 2, amp = 0.707;
@@ -141,6 +142,7 @@ SynthDef(\bassNoise, {
 	//sig = Pluck.ar(sig, 1, 0.2, 0.2, 3, 0.5, amp);
 	Out.ar(0, sig);
 }).add;
+
  //CAN I GIVE THIS AN LFO SHAPE TO MAKE INTO DUBSTEP SOUND? - DONE
 SynthDef(\bassNoise2, {
 	arg freq = 55, amp = 0.707, gate = 1,

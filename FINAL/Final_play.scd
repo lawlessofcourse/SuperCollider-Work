@@ -19,7 +19,20 @@ c.tempo = 120/60
 thisProcess.platform.recordingsDir
 s.record
 s.stopRecording
-(
+((
+Pdef(\pluckPat,
+	Pbind(
+		\instrument, \pluck,
+			\scale, Scale.chromatic,
+		// \degree, Pxrand([[0, 2, 4] [3, 7, 11], [4, 7, 9], [4, 9, 11], [5, 9, 11]], inf),
+		\degree, Pxrand([0 , 2, 4, 6 ], inf),
+		// \dur, Pseq([1, 1, 0.25, 0.25, 0.5, 2], inf),
+		\dur, Pxrand([0.25, 0.25, 0.5 ,0.5, 1, 0.25], inf),
+		\db, Pseq([-4], inf),
+
+	)
+);
+);
 (// MAYBE INCOPORATE KICK THAT SPEEDS UP?
 Pdef(\build,
 	Pbind(
@@ -135,15 +148,16 @@ Pdef(\bassHit,
 );
 )
 
-Pdef(\build).play;Pdef(\wubalub).play; // FADE IN WUB TO BUILD
-Pdef(\build).stop; //EXECUTE AFTER
+Pdef(\build).play;
+Pdef(\wubalub).play; // FADE IN WUB TO BUILD
+Pdef(\build).stop; //=EXECUTE AFTER
 
 Pdef(\wubalub).stop; //HIT THIS THEN ONCE IT STOPS EXECUTE NEXT BLOCK OF CODE
 
 //PLAY ADD IN HIHAT NEAR END AND FADE OUT WUB
 Pdef(\wubalub).play;Pdef(\bassHit).play;Pdef(\bassHitDur, Pseq([6, 10, 10, 10, 4], inf));Pdef(\deepKickPat).play;Pdef(\kickDur, Pseq([2, 1, 2, 1, 2], inf));Pdef(\highHatPat).play;// LINE THIS UP WITH PSEQ IN WUBALUB
 
-
+Pdef(\pluckPat).play;
 
 
 // CAN I CREATE ROUTINES OR TASKS TO AUTOMATE THE BREAK
