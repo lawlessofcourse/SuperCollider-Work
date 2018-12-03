@@ -11,6 +11,8 @@ MIDIIn.connectAll
 ~hatVol = Bus.control();
 ~lfoBus = Bus.control();
 ~rateBus = Bus.control();
+~constVol = Bus.control();
+~rateBus2 = Bus.control();
 
 
 (
@@ -43,6 +45,21 @@ MIDIdef.cc(\lfoRate, {
 
 },
 (22) // <- the midi number you want to target
+);
+
+MIDIdef.cc(\bassRate2, {
+	arg val, nn, chan, src;
+	//val.postln;
+	nn.postln;
+	// nn is the knob/fader location ex fader 1 is 41 and knob 1 is 21
+	//I want to specifically say use nn 21 for rate control.
+	"".postln;
+
+	val = (val/127*10).ceil;
+	~rateBus2.set(val);
+	["WubsConst Rate", val].postln;
+},
+(23) // <- the midi number you want to target
 );
 
 MIDIdef.cc(\wubVol, {
@@ -88,6 +105,20 @@ MIDIdef.cc(\beautVol, {
 },
 (43) // <- the midi number you want to target
 );
+MIDIdef.cc(\wubsConstVol, {
+	arg val, nn, chan, src;
+	//val.postln;
+	nn.postln;
+	// nn is the knob/fader location ex fader 1 is 41 and knob 1 is 21
+	//I want to specifically say use nn 21 for rate control.
+	"".postln;
+
+	val = (val/127); //.floor so it is either on or off
+	~constVol.set(val);
+	["WubsConst", val].postln;
+},
+(44) // <- the midi number you want to target
+);
 MIDIdef.cc(\hiHatVol, {
 	arg val, nn, chan, src;
 	//val.postln;
@@ -100,7 +131,7 @@ MIDIdef.cc(\hiHatVol, {
 	~hatVol.set(val);
 	["HiHat Volume", val].postln;
 },
-(44) // <- the midi number you want to target
+(45) // <- the midi number you want to target
 );
 
 

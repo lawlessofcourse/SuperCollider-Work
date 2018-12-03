@@ -26,12 +26,13 @@ Pdef(\pluckPat,
 			\scale, Scale.chromatic,
 		// \degree, Pxrand([[0, 2, 4] [3, 7, 11], [4, 7, 9], [4, 9, 11], [5, 9, 11]], inf),
 		\degree, Pxrand([0 , 2, 4, 6 ], inf),
+
 		// \dur, Pseq([1, 1, 0.25, 0.25, 0.5, 2], inf),
-		\dur, Pxrand([0.25, 0.25, 0.5 ,0.5, 1, 0.25], inf),
-		\db, Pseq([-4], inf),
+		\dur, Pxrand([0.25, 0.25, 0.25 ,0.5, 1, 1.5], inf),
+		\db, Pseq([-16], inf),
 
 	)
-);
+)
 );
 (// MAYBE INCOPORATE KICK THAT SPEEDS UP?
 Pdef(\build,
@@ -137,7 +138,7 @@ Pdef(\bassHit,
 		\instrument, \bassHit,
 		\freq, Pdef(\note, Pseq([55, 55, 55], inf)),
 		\dur, Pdef(\bassHitDur, Pseq([4],inf)),
-		\db, -4, // knob for volume
+		\db, -0, // knob for volume
 		\sustain, 1.5,
 		\release, 1.5,
 		\modFreq, Pseq([440, 392, 493.88], inf),
@@ -145,6 +146,22 @@ Pdef(\bassHit,
 		//\depth, Pdef(\depth, 0.6),
 		//\test, Pfunc({|ev| ~der = ev})
 	))
+);
+(
+Pdef(\wubsConst,
+	Pbind(
+		\instrument, \wubsConst,
+		\dur, Pseq([2], 2),
+		\db, 0,
+)
+)
+);
+Pdef(\wubBuild,
+	Pbind(
+		\instrument, \wubs2,
+		\dur, Pseq([20], 1),
+		\db, -6,
+)
 );
 )
 
@@ -163,20 +180,22 @@ Pdef(\pluckPat).play;
 // CAN I CREATE ROUTINES OR TASKS TO AUTOMATE THE BREAK
 Pdef(\deepKickPat).pause;
 Pdef(\beautPatBuild).play;
-Pdef(\bassHit).pause;
+Pdef(\bassHit).play;
 
 Pdef(\beautPatConstant).play;Pdef(\bassHit).play;Pdef(\bassHitDur, Pseq([4], inf));Pdef(\beautPatBuild).stop;
 
 Pdef(\deepKickPat).play;Pdef(\kickDur, Pseq([2], inf));
 
-Pdef(\beautPatConstant).pause;Pdef(\bassHitDur, Pseq([2], inf));
+Pdef(\beautPatConstant).pause;
+Pdef(\bassHitDur, Pseq([2], inf));
 Pdef(\deepKickPat).pause;
 
 b = Synth(\bassNoise);
 b.pause;
 b.free;
 
-Pdef(\lfoAmpLow, 0.5);
+Pdef(\wubBuild).play;
+Pdef(\wubsConst).play;
 
 
 

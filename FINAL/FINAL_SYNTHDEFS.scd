@@ -16,19 +16,19 @@ SynthDef(\chords, {
 
 	Out.ar(0, sig);
 
-}).add;
+}).add.play;
 )
 (//tuned to c4
 SynthDef(\pluck, {
 	arg freq = 261.63, amp = 0.707,
-	atk = 0.001, sustain = 1, rel = 0.25, rate = 1, depth = 0.6,
-	maxDel = 0.1, delay=0.1, coef = 0.1, out = 0, gate = 1, dec = 20, modFreq =880;
+	atk = 0.01, sustain = 1, rel = 0.25, rate = 1, depth = 0.6,
+	maxDel = 0.1, delay=0.01, coef = 0.1, out = 0, gate = 1, dec = 20, modFreq =880;
 	var sig, env;
 
 	env = EnvGen.kr(Env.linen(atk, sustain, rel, amp, -2), doneAction: 2);
 	sig = Pluck.ar(
-		in: RLPF.ar(SinOsc.ar(freq, 0, LFTri.kr(0.1)), modFreq),
-		trig: SinOsc.kr(1).linlin(-1,1,0,1),
+		in: LPF.ar(LFSaw.ar(freq), 2000),
+		trig: Impulse.kr(2),
 		maxdelaytime: maxDel,
 		delaytime: delay,
 		decaytime: sustain,
@@ -37,10 +37,11 @@ SynthDef(\pluck, {
 	);
 
 	sig = Pan2.ar(sig, 0);
-
+	sig = FreeVerb.ar(sig, 0.33, 0.5, 0.5)
 	Out.ar(out, sig);
-}).add.play;
+}).add;
 )
+261.63 / 2
 (
 SynthDef(\synthy, {
 	arg freq = 440, amp = 0.707, gate = 1, sustain = 1, modFreq = 880, rate = 0.5, depth = 0.05;
@@ -65,15 +66,20 @@ SynthDef(\synthy, {
 }).add;
 )
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 (
 SynthDef(\wubs2, {
-	arg  freq = 110, inSigFreq = 440, freqA =698.46, freqB = 43.625, freqDur = 10, vRate = 2, vDepth= 2, amp = 0.707;
+	arg  freq = 110, inSigFreq = 440, freqA =698.46, freqB = 43.625, freqDur = 20, vRate = 2, vDepth= 2, amp = 0.707, freq2 = 0;
 	var sig, mod, sig2, outSig, sig1, sigMix, env;
 
 	//env = EnvGen.kr(Env.new([0,0.7,0.7,0], [5, 20, 5], 'sqr', 2));
 	//env = XLine.kr(0.01, 1, 2);
 	freq = XLine.kr(freqA, freqB, freqDur, doneAction: 2);
-
+	freq2 = XLine.kr(freqB, 43.625*4, freqDur, doneAction: 2);
+	env = EnvGen.kr(Env.new([freq, 43.625],[freqDur, 5], 'lin'));
+	vRate = EnvGen.kr(Env.new([2, 2, 0], [15, 5], 'lin'));
 	mod = Vibrato.kr(
 		DC.ar(1),
 		rate: vRate,
@@ -84,15 +90,54 @@ SynthDef(\wubs2, {
 		depthVariation:0
 	);
 
-	sig1= SinOsc.ar(freq, 0.1, mul: amp);
-	sig2 = Saw.ar(freq, 0.1, mul:amp);
+	sig1= SinOsc.ar(env, 0.1, mul: amp);
+	sig2 = Saw.ar(env, 0.1, mul:amp);
 
 	sigMix = Mix.new([sig1, sig2]);
 	sigMix = sigMix*mod;
 
 	sig = RLPF.ar(
 		in: sigMix,
-		freq: XLine.kr(8000,1000,freqDur),
+		freq: XLine.kr(6000,500,freqDur),
+		rq: 0.05,
+		mul: amp//XLine.kr(1, 0.01, 20, amp, doneAction: 2),
+	);
+
+	sig = FreeVerb.ar(sig, mix: 0.9, room:0.85, mul: 0.2);
+	sig = Pan2.ar(sig, 0);
+	sig = Limiter.ar(sig, 0.7);
+
+	Out.ar(0, sig);
+}).add;
+SynthDef(\wubsConst, {
+	arg  freq = 110, inSigFreq = 440, freqA =698.46, freqB = 43.625, freqDur = 20, vRate = 0, vDepth= 2, amp = 0.707, freq2 = 0;
+	var sig, mod, sig2, outSig, sig1, sigMix, env;
+
+	//env = EnvGen.kr(Env.new([0,0.7,0.7,0], [5, 20, 5], 'sqr', 2));
+	//env = XLine.kr(0.01, 1, 2);
+	freq = XLine.kr(freqA, freqB, freqDur, doneAction: 2);
+	freq2 = XLine.kr(freqB, 43.625*4, freqDur, doneAction: 2);
+	env = EnvGen.kr(Env.new([freq, 43.625],[freqDur, 5], 'lin'));
+	vRate = EnvGen.kr(Env.new([0, 0, 2], [5, 15], 'lin'));
+	mod = Vibrato.kr(
+		DC.ar(1),
+		rate: In.kr(~rateBus2),
+		depth:vDepth,
+		delay:2,
+		onset:3,
+		rateVariation: 0.0,
+		depthVariation:0
+	);
+
+	sig1= SinOsc.ar(freqB, 0.1, mul: In.kr(~constVol));
+	sig2 = Saw.ar(freqB, 0.1, mul:In.kr(~constVol));
+
+	sigMix = Mix.new([sig1, sig2]);
+	sigMix = sigMix*mod;
+
+	sig = RLPF.ar(
+		in: sigMix,
+		freq: 500,
 		rq: 0.05,
 		mul: amp//XLine.kr(1, 0.01, 20, amp, doneAction: 2),
 	);
@@ -102,12 +147,30 @@ SynthDef(\wubs2, {
 	sig = Limiter.ar(sig, 0.7);
 
 	Out.ar(0, sig);
+}).add;
+SynthDef(\pluck, {
+	arg freq = 261.63, amp = 0.707,
+	atk = 0.01, sustain = 0.5, rel = 0.25, rate = 1, depth = 0.6,
+	maxDel = 0.1, delay=0.1, coef = 0.1, out = 0, gate = 1, dec = 20, modFreq =880;
+	var sig, env;
+
+	env = EnvGen.kr(Env.linen(atk, sustain, rel, amp, -2), doneAction: 2);
+	sig = Pluck.ar(
+		in: LPF.ar(LFSaw.ar([freq, freq*2, freq/2, freq/4]), 2000),
+		trig: Impulse.kr(3),
+		maxdelaytime: maxDel,
+		delaytime: delay,
+		decaytime: sustain,
+		coef: coef,
+		mul: env
+	);
+
+	sig = Pan2.ar(sig, 0);
+	sig = FreeVerb.ar(sig, 0.33, 0.5, 0.5);
+	Out.ar(out, sig);
 }).add.play;
-)
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-( //CAN I GIVE THIS AN LFO SHAPE TO MAKE INTO DUBSTEP SOUND? - DONE
+//CAN I GIVE THIS AN LFO SHAPE TO MAKE INTO DUBSTEP SOUND? - DONE
 SynthDef(\bassNoise, {
 	arg freq = 55, amp = 0.707, gate = 1,
 	atk = 0.01, rel = 0.01, sustain = 1.5,
