@@ -15,22 +15,37 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 c = TempoClock.new(1, 4, 1, 256);
-c.tempo = 120/60
+c.tempo = 140/60
 thisProcess.platform.recordingsDir
 s.record
 s.stopRecording
+Pdef(\chordPat).play;
 ((
 Pdef(\pluckPat,
 	Pbind(
 		\instrument, \pluck,
 			\scale, Scale.chromatic,
 		// \degree, Pxrand([[0, 2, 4] [3, 7, 11], [4, 7, 9], [4, 9, 11], [5, 9, 11]], inf),
-		\degree, Pxrand([0 , 2, 4, 6 ], inf),
+		\degree, Pxrand([0 ,1, 2,3, 4,5, 6 ], inf),
 
 		// \dur, Pseq([1, 1, 0.25, 0.25, 0.5, 2], inf),
-		\dur, Pxrand([0.25, 0.25, 0.25 ,0.5, 1, 1.5], inf),
+		\dur, Pxrand([0.25, 0.25, 0.5 ,0.5, 1], inf),
 		\db, Pseq([-16], inf),
 
+	)
+)
+);
+(
+Pdef(\chordPat,
+	Pbind(
+		\instrument, \chords,
+		//\scale, Scale.chromatic,
+		\freq, Pxrand([Pxrand([32.703, 41.203, 55], 3),Pxrand([65.406, 82.307, 110], 4), Pxrand([ 130.81, 164.81, 220], 2),  Pxrand([261.63, 329.63 ,440 ], 1), Pxrand([523.25, 659.26, 880],1)], inf),
+		//\freq,Pxrand([261.63, 329.63 ,440 ], 3),
+		\dur, Pxrand([2, 1, 1, 0.5],inf),
+		\sustain, Pxrand([2, 4, 6, 1], inf),
+		\rate, Pxrand([2, 2, 4, 4, 1, 8, 10, 12], inf),
+		\db, -12,
 	)
 )
 );
@@ -71,7 +86,7 @@ Pdef(\clapPat,
 Pdef(\highHatPat,
 	Pbind(
 		\instrument, \highHat,
-		\dur, Pdef(\highHatDur, Pseq([0.25], inf)),
+		\dur, Pdef(\highHatDur, Pseq([0.5], inf)),
 
 
 		\db, -16,
@@ -172,9 +187,12 @@ Pdef(\build).stop; //=EXECUTE AFTER
 Pdef(\wubalub).stop; //HIT THIS THEN ONCE IT STOPS EXECUTE NEXT BLOCK OF CODE
 
 //PLAY ADD IN HIHAT NEAR END AND FADE OUT WUB
-Pdef(\wubalub).play;Pdef(\bassHit).play;Pdef(\bassHitDur, Pseq([6, 10, 10, 10, 4], inf));Pdef(\deepKickPat).play;Pdef(\kickDur, Pseq([2, 1, 2, 1, 2], inf));Pdef(\highHatPat).play;// LINE THIS UP WITH PSEQ IN WUBALUB
-
+Pdef(\wubalub).play;Pdef(\bassHit).play;Pdef(\bassHitDur, Pseq([6, 10, 10, 10, 4], inf));
+Pdef(\deepKickPat).play;Pdef(\kickDur, Pseq([2, 1, 2, 1, 2], inf));Pdef(\highHatPat).play;// LINE THIS UP WITH PSEQ IN WUBALUB
+Pdef(\clapPat).stop;
 Pdef(\pluckPat).play;
+
+Pdef(\highHatPat).play;
 
 
 // CAN I CREATE ROUTINES OR TASKS TO AUTOMATE THE BREAK
@@ -184,17 +202,17 @@ Pdef(\bassHit).play;
 
 Pdef(\beautPatConstant).play;Pdef(\bassHit).play;Pdef(\bassHitDur, Pseq([4], inf));Pdef(\beautPatBuild).stop;
 
-Pdef(\deepKickPat).play;Pdef(\kickDur, Pseq([2], inf));
+Pdef(\deepKickPat).play;Pdef(\kickDur, Pseq([1], inf));
 
 Pdef(\beautPatConstant).pause;
-Pdef(\bassHitDur, Pseq([2], inf));
+Pdef(\bassHitDur, Pseq([3], inf));
 Pdef(\deepKickPat).pause;
 
 b = Synth(\bassNoise);
 b.pause;
 b.free;
 
-Pdef(\wubBuild).play;
+Pdef(\wubBuild).stop;
 Pdef(\wubsConst).play;
 
 
